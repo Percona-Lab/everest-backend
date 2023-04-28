@@ -1,4 +1,4 @@
-package api
+package project
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ type ProjectCreateRequest struct {
 	Name string `json:"string"`
 }
 
-func AddProjectRoutes(r *gin.Engine, db *gorm.DB) {
-	r.POST("/api/project/create", func(c *gin.Context) {
+func Create(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		var req ProjectCreateRequest
 		if err := c.BindJSON(&req); err != nil {
 			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("invalid request. %w", err))
@@ -32,5 +32,5 @@ func AddProjectRoutes(r *gin.Engine, db *gorm.DB) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"id": project.ID})
-	})
+	}
 }

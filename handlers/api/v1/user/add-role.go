@@ -1,4 +1,4 @@
-package api
+package user
 
 import (
 	"fmt"
@@ -17,14 +17,8 @@ type addRoleRequest struct {
 	UserID    int    `json:"user_id"`
 }
 
-type removeRoleRequest struct {
-	ProjectID int    `json:"project_id"`
-	Role      string `json:"role"`
-	UserID    int    `json:"user_id"`
-}
-
-func AddUserRoutes(r *gin.Engine, db *gorm.DB) {
-	r.POST("/api/user/add-role", func(c *gin.Context) {
+func AddRole(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		var req addRoleRequest
 		if err := c.BindJSON(&req); err != nil {
 			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("invalid request. %w", err))
@@ -49,26 +43,5 @@ func AddUserRoutes(r *gin.Engine, db *gorm.DB) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{})
-	})
-
-	r.POST("/api/user/remove-role", func(c *gin.Context) {
-		var req removeRoleRequest
-		if err := c.BindJSON(&req); err != nil {
-			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("invalid request. %w", err))
-			return
-		}
-
-		pr := models.ProjectRole{
-			ProjectID: req.ProjectID,
-			UserID:    req.UserID,
-			Role:      req.Role,
-		}
-		tx := db.Where(&pr).Delete(&pr)
-		if tx.Error != nil {
-			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("cannot remove role. %w", tx.Error))
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{})
-	})
+	}
 }

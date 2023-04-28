@@ -1,4 +1,4 @@
-package routes
+package login
 
 import (
 	"fmt"
@@ -10,12 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func addLoginRoutes(r *gin.Engine, auth *auth.OIDC, db *gorm.DB) {
-	r.GET("/login", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, auth.Oauth2Config.AuthCodeURL("random-state"))
-	})
-
-	r.GET("/login/callback", func(c *gin.Context) {
+func Callback(auth *auth.OIDC, db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		rawIDToken, claims, err := auth.HandleCallback(c.Request.Context(), c.Query("code"), c.Query("state"))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
@@ -29,5 +25,5 @@ func addLoginRoutes(r *gin.Engine, auth *auth.OIDC, db *gorm.DB) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"token": rawIDToken})
-	})
+	}
 }
