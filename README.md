@@ -30,23 +30,23 @@ curl localhost:3000/api/v1/project/create \
 - POST `/api/v1/project/create`
   ```json
   {
-    "name": string
+    "name": "string"
   }
   ```
 - POST `/api/v1/user/add-role`
   ```json
   {
-    "project_id": int,
-    "role": string,
-    "user_id": int
+    "project_id": 0,
+    "role": "string",
+    "user_id": 0
   }
   ```
 - POST `/api/v1/user/remove-role`
   ```json
   {
-    "project_id": int,
-    "role": string,
-    "user_id": int
+    "project_id": 0,
+    "role": "string",
+    "user_id": 0
   }
   ```
 - POST `/api/v1/cluster/create/:projectID`
