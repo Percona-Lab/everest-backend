@@ -1,0 +1,23 @@
+services:
+  oidc:
+    restart: always
+    image: dexidp/dex:v2.36.0
+    environment:
+      - DEX_CONNECTORS_ENABLE_MOCK=1
+    ports:
+      - 5556:5556
+    volumes:
+      - ./config.oidc.yaml:/etc/dex/config.docker.yaml
+
+  mysql:
+    restart: always
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+  
+volumes:
+  mysql-data:
