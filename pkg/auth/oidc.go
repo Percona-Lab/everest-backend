@@ -14,6 +14,12 @@ type OIDC struct {
 	provider        *oidc.Provider
 }
 
+type Claims struct {
+	Email    string   `json:"email"`
+	Verified bool     `json:"email_verified"`
+	Groups   []string `json:"groups"`
+}
+
 func New(ctx context.Context) (*OIDC, error) {
 	provider, err := oidc.NewProvider(ctx, "http://127.0.0.1:5556/dex")
 	if err != nil {
@@ -44,34 +50,30 @@ func New(ctx context.Context) (*OIDC, error) {
 	}, nil
 }
 
-func (o *OIDC) HandleCallback(ctx context.Context, code, state string) (string, error) {
+func (o *OIDC) HandleCallback(ctx context.Context, code, state string) (string, *Claims, error) {
 	// TODO: verify state
 	oauth2Token, err := o.Oauth2Config.Exchange(ctx, code)
 	if err != nil {
-		return "", fmt.Errorf("could not verify token. %w", err)
+		return "", nil, fmt.Errorf("could not verify token. %w", err)
 	}
 
 	// Extract the ID Token from OAuth2 token.
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		return "", fmt.Errorf("missing token")
+		return "", nil, fmt.Errorf("missing token")
 	}
 
 	// Parse and verify ID Token payload.
 	idToken, err := o.IDTokenVerifier.Verify(ctx, rawIDToken)
 	if err != nil {
-		return "", fmt.Errorf("could not verify ID token. %w", err)
+		return "", nil, fmt.Errorf("could not verify ID token. %w", err)
 	}
 
 	// Extract custom claims.
-	var claims struct {
-		Email    string   `json:"email"`
-		Verified bool     `json:"email_verified"`
-		Groups   []string `json:"groups"`
-	}
-	if err := idToken.Claims(&claims); err != nil {
-		return "", fmt.Errorf("could not parse claims. %w", err)
+	claims := &Claims{}
+	if err := idToken.Claims(claims); err != nil {
+		return "", nil, fmt.Errorf("could not parse claims. %w", err)
 	}
 
-	return rawIDToken, nil
+	return rawIDToken, claims, nil
 }
