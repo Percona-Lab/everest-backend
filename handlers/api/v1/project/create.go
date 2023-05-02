@@ -10,7 +10,7 @@ import (
 )
 
 type ProjectCreateRequest struct {
-	Name string `json:"string"`
+	Name string `json:"name"`
 }
 
 func Create(db *gorm.DB) gin.HandlerFunc {

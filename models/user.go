@@ -2,17 +2,16 @@ package models
 
 import (
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type User struct {
 	gorm.Model
-	Email string `gorm:"uniqueIndex;size:256"`
+	Email string `gorm:"index;size:256"`
 }
 
 func CreateUserIfNotExists(db *gorm.DB, email string) error {
 	user := &User{Email: email}
-	tx := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&user)
+	tx := db.FirstOrCreate(&user, User{Email: email})
 	if tx.Error != nil {
 		return tx.Error
 	}
