@@ -67,6 +67,10 @@ func requireUserRole(db *gorm.DB, role roles.Role, registry *roles.Registry) gin
 			ProjectID: projectID,
 			Role:      registry.FindSqlName(role),
 			UserID:    int(userID),
+		}).Or(models.ProjectRole{
+			ProjectID: projectID,
+			Role:      registry.FindSqlName(roles.ClusterAdmin),
+			UserID:    int(userID),
 		}).First(&pr)
 
 		if tx.Error != nil && !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
