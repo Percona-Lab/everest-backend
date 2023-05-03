@@ -1,4 +1,4 @@
-package k8scluster
+package cluster
 
 import (
 	"fmt"

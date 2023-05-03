@@ -1,4 +1,4 @@
-package dbcluster
+package cluster
 
 import (
 	"fmt"

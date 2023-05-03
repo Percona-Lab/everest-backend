@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/percona/everest-backend/handlers/api/v1/dbcluster"
-	"github.com/percona/everest-backend/handlers/api/v1/k8scluster"
+	dbcluster "github.com/percona/everest-backend/handlers/api/v1/db/cluster"
+	k8scluster "github.com/percona/everest-backend/handlers/api/v1/k8s/cluster"
 	"github.com/percona/everest-backend/handlers/api/v1/project"
 	"github.com/percona/everest-backend/handlers/api/v1/user"
 	"github.com/percona/everest-backend/handlers/login"
@@ -35,19 +35,22 @@ func Initialize(ctx context.Context, r *gin.Engine, db *gorm.DB) error {
 
 		apiv1.POST("project/create", project.Create(db))
 
-		apiv1.GET("k8s-cluster/list", k8scluster.List(db))
-		apiv1.POST("k8s-cluster/add", k8scluster.Add(db))
+		apiv1.GET("k8s/cluster/list", k8scluster.List(db))
+		apiv1.POST("k8s/cluster/add", k8scluster.Add(db))
 
 		projectApi := apiv1.Group("project/:projectID")
 		{
-			projectApi.POST("db-cluster/create",
+			projectApi.POST("db/cluster/create",
 				requireUserRole(db, roles.ClusterCreate, rolesRegistry),
 				dbcluster.Create(db),
 			)
-			projectApi.POST("db-cluster/delete",
+			projectApi.POST("db/cluster/delete",
 				requireUserRole(db, roles.ClusterDelete, rolesRegistry),
 				dbcluster.Delete(db),
 			)
+			projectApi.GET("db/cluster/list", dbcluster.List(db))
+			projectApi.POST("db/cluster/start", dbcluster.Start(db))
+			projectApi.POST("db/cluster/stop", dbcluster.Stop(db))
 		}
 	}
 
